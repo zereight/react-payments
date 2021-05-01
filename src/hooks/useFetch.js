@@ -1,4 +1,6 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
+
+// Header가 아니라 Option으로 바꾸기
 
 export default (defaultURL, defaultHeader = { method: 'GET' }) => {
   const [url, setURL] = useState(defaultURL);
@@ -9,7 +11,9 @@ export default (defaultURL, defaultHeader = { method: 'GET' }) => {
     const response = await fetch(url, header);
     const json = await response.json();
     console.log(json);
-    setData(json);
+    if (header.method === 'GET' || header.method === 'PATCH') {
+      setData((prevState) => [...prevState, ...json]);
+    }
   }, [url, header]);
 
   useEffect(() => {

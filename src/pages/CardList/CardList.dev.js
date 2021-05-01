@@ -8,6 +8,8 @@ import Styled from './CardList.styles';
 
 let timer = null;
 
+// TODO: targetCard id말고 객체로 바꾸기
+
 const CardList = () => {
   const [deleteMode, setDeleteMode] = useState(false);
   const [targetCardId, setTargetCardId] = useState(null);

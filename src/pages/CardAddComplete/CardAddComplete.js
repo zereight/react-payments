@@ -30,6 +30,8 @@ const CardAddComplete = () => {
     if (nickname.value) {
       const newCardList = cardList.value;
       const targetCard = newCardList.find((card) => card.id === id);
+      if (!targetCard) return;
+
       targetCard.nickname = nickname.value;
 
       cardList.setValue(newCardList);
