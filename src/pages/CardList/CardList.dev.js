@@ -1,8 +1,8 @@
 import { useEffect, useState } from 'react';
 import { Link, useHistory } from 'react-router-dom';
 import { Card } from '../../components';
-import { ROUTE, LOCAL_STORAGE_KEY, MESSAGE } from '../../constants';
-import { useLocalStorage } from '../../hooks';
+import { ROUTE, MESSAGE } from '../../constants';
+import { useFetch } from '../../hooks';
 import { ScreenContainer } from '../../styles/common.styles';
 import Styled from './CardList.styles';
 
@@ -10,8 +10,11 @@ let timer = null;
 
 const CardList = () => {
   const [deleteMode, setDeleteMode] = useState(false);
+  const [targetCardId, setTargetCardId] = useState(null);
 
-  const cardList = useLocalStorage(LOCAL_STORAGE_KEY.CARD_LIST);
+  const { data: cardList, setURL, setHeader, fetchUrl } = useFetch(
+    `http://localhost:${process.env.REACT_APP_PORT}/cards`
+  );
   const history = useHistory();
 
   const onClickCardContainer = (event) => {
@@ -20,15 +23,18 @@ const CardList = () => {
     // eslint-disable-next-line no-alert
     if (!cardId || !window.confirm(MESSAGE.CARD_REMOVE_CONFIRM)) {
       if (!event.target.getAttribute('data-is-card')) {
+        setTargetCardId(cardId);
         setDeleteMode(false);
       }
-
-      return;
     }
-
-    const newCardList = cardList.value.filter((card) => card.id !== cardId);
-    cardList.setValue(newCardList);
   };
+
+  useEffect(() => {
+    if (!deleteMode) return;
+    setURL(`http://localhost:${process.env.REACT_APP_PORT}/cards/${targetCardId}`);
+    setHeader({ method: 'DELETE' });
+    fetchUrl();
+  }, [deleteMode, targetCardId, setURL, setHeader, fetchUrl]);
 
   const onClickCard = (event) => {
     const {
@@ -37,7 +43,7 @@ const CardList = () => {
 
     if (deleteMode) return;
 
-    const targetCard = cardList.value.find((card) => card.id === id);
+    const targetCard = cardList.find((card) => card.id === id);
     history.push({
       pathname: ROUTE.COMPLETE,
       state: {
@@ -80,8 +86,8 @@ const CardList = () => {
           </Styled.AddCard>
         </Link>
         <ul>
-          {cardList.value &&
-            cardList.value?.reverse().map((card) => {
+          {cardList &&
+            cardList?.reverse().map((card) => {
               const {
                 id,
                 cardNumbers,
